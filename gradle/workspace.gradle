@@ -3,14 +3,14 @@ task syncWorkspace(type: Sync, group: "workspace") {
         exclude '.gradle'
         exclude 'build'
     }
-    into "$rootDir/../00-workspace/"
+    into "$rootDir/00-workspace/"
 }
 
 
 
 task cleanWorkspace(group: "workspace") {
     doLast {
-        def dirName = "$rootDir/../00-workspace/"
+        def dirName = "$rootDir/00-workspace/"
         file(dirName).list().each {
             f ->
                 delete "${dirName}/${f}"
