@@ -9,15 +9,32 @@ task cleanWorkspace(group: "workspace") {
     }
 }
 
-task sync01(type: Sync, group: "workspace") {
-    dependsOn 'cleanWorkspace'
-    from  fileTree("$rootDir/01-init")  {
-        exclude '.gradle'
-        exclude 'build'
+def commonSync(uebungNummer) {
+    return {
+        group "workspace"
+        dependsOn 'cleanWorkspace'
+        from fileTree("$rootDir/${uebungNummer}-uebung") {
+            exclude '.gradle'
+            exclude 'build'
+        }
+        into "$rootDir/00-workspace/"
     }
-    into "$rootDir/00-workspace/"
 }
+
+project.rootDir.eachDirMatch({ new File(it).name.contains("uebung")}) { dir ->
+
+    def uebungNummer = dir.name.minus("-uebung")
+
+    task "sync${uebungNummer}"(type: Sync) {
+        configure commonSync(uebungNummer)
+    }
+}
+
+
+
 
 task wrapper(type: Wrapper) {
     gradleVersion = '3.0'
 }
+
+
