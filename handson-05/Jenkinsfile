@@ -1,3 +1,10 @@
+ #!groovy
+
  node {
-  echo "Hello World"
+  stage "01-commit" {
+    echo "Hello World"
+  }
+  stage "02-integration-test" {
+    echo "Huhu"
+  }
  }
