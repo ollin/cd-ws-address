@@ -1,8 +1,8 @@
  node {
-  stage "01-commit" {
-    echo "Hello World"
+  stage("01-commit") {
+    echo "Hello from stage 1"
   }
-  stage "02-integration-test" {
-    echo "Huhu"
+  stage("02-integration-test") {
+    echo "Hello from stage 2"
   }
  }
