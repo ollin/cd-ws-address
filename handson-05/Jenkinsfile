@@ -1,8 +1,11 @@
- node {
-  stage('01-commit') {
-    echo "Hello from stage 1"
+withEnv(["PIPE_FLOW_NUMBER=${currentBuild.number}"]) {
+  node {
+    if(isUnix()){
+      sh './gradlew pushImages --info'
+
+    }
+    else{
+      bat './gradlew.bat pushImages --info'
+    }
   }
-  stage('02-integration-test') {
-    echo "Hello from stage 2"
-  }
- }
+}
