@@ -1,11 +1,12 @@
 withEnv(["PIPE_FLOW_NUMBER=${currentBuild.number}"]) {
   node {
+    def workspace = pwd()
     if(isUnix()){
-      sh './gradlew pushImages --info'
+      sh "${workspace}/gradlew pushImages --info"
 
     }
     else{
-      bat './gradlew.bat pushImages --info'
+      bat "${workspace}/gradlew.bat pushImages --info"
     }
   }
 }
