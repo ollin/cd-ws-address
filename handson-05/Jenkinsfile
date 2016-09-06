@@ -1,12 +1,14 @@
 withEnv(["PIPE_FLOW_NUMBER=${currentBuild.number}"]) {
   node {
-    def workspace = pwd()
+    stage "checkout, test, build and publish"
+    git url: "http://git.nautsch.net/dev/cd-ws-address.git"
     if(isUnix()){
-      sh "${workspace}@script/gradlew pushImages --info"
+      sh "./gradlew -b ./workspace/build.gradle pushImages --info"
 
     }
     else{
-      bat "${workspace}@script/gradlew.bat pushImages --info"
+      // not tested
+      bat "gradlew.bat ./workspace/build.gradle pushImages --info"
     }
   }
 }
