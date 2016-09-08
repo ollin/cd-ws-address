@@ -1,0 +1,18 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+apply plugin: 'base'
+
+task copyDockerComposeFile(type: Copy) {
+    from 'src/main/dockercompose/prod'
+    into 'build/dockercompose'
+
+    String fqImageName = "${rootProject.dockerImageName}:${rootProject.dockerImageVersion}"
+    filter(ReplaceTokens, tokens: [fqImageName: fqImageName])
+}
+
+task deploy(type: Exec, group: 'deploy') {
+    dependsOn 'copyDockerComposeFile'
+
+    workingDir 'build/dockercompose'
+    commandLine 'docker-compose', 'up', '-d'
+}

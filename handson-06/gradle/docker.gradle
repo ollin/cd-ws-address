@@ -1,0 +1,40 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+apply plugin: 'base'
+
+task copyDockerfile(type: Copy, group: "docker") {
+    from "src/main/docker"
+    into 'build/docker'
+
+    outputs.dir 'build/docker'
+
+    filter ReplaceTokens, tokens: [artifactName: rootProject.tasks.jar.archiveName]
+}
+
+task copyJarForDocker(type: Copy, group: "docker") {
+    dependsOn build
+
+    from jar
+    into "build/docker"
+}
+
+task buildImage(type: Exec, dependsOn: ['copyJarForDocker', 'copyDockerfile'], group: 'docker') {
+    workingDir "build/docker"
+    commandLine 'docker', 'build', '--pull', '-t', "$dockerImageName:$dockerImageVersion", '.'
+}
+
+task tagLatest(type: Exec, dependsOn: 'buildImage', group: 'docker') {
+    commandLine 'docker', 'tag', "$dockerImageName:$dockerImageVersion", "$dockerImageName:latest"
+}
+
+task pushVersion(type: Exec, dependsOn: 'buildImage', group: 'docker') {
+    commandLine 'docker', 'push', "$dockerImageName:$dockerImageVersion"
+}
+
+task pushLatest(type: Exec, dependsOn: 'tagLatest', group: 'docker') {
+    commandLine 'docker', 'push', "$dockerImageName:latest"
+}
+
+task pushImages(group: 'docker') {
+    dependsOn 'pushVersion', 'pushLatest'
+}
