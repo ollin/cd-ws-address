@@ -2,9 +2,13 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 apply plugin: 'base'
 
+def stageEnv = "prod"
+
+def stageEnvDir = "build/dockercompose/${stageEnv}"
+
 task copyDockerComposeFile(type: Copy) {
-    from 'src/main/dockercompose/prod'
-    into 'build/dockercompose'
+    from "src/main/dockercompose"
+    into stageEnvDir
 
     String fqImageName = "${rootProject.dockerImageName}:${rootProject.dockerImageVersion}"
     filter(ReplaceTokens, tokens: [fqImageName: fqImageName])
@@ -13,6 +17,6 @@ task copyDockerComposeFile(type: Copy) {
 task deploy(type: Exec, group: 'deploy') {
     dependsOn 'copyDockerComposeFile'
 
-    workingDir 'build/dockercompose'
+    workingDir stageEnvDir
     commandLine 'docker-compose', 'up', '-d'
 }
