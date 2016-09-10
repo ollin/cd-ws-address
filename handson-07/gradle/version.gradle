@@ -1,0 +1,42 @@
+project.version = readVersion()
+project.extensions.add('dockerImageVersion', readDockerVersion())
+
+String readVersion() {
+
+    def env = System.getenv()
+    def versionSuffix = (env.PIPE_FLOW_NUMBER != null) ? ".$env.PIPE_FLOW_NUMBER" : '-SNAPSHOT'
+
+    return readMajorMinorVersion() + versionSuffix
+}
+
+String readDockerVersion() {
+
+    def env = System.getenv()
+
+    if (env.PIPE_FLOW_NUMBER != null) {
+        return "${readMajorMinorVersion()}.${env.PIPE_FLOW_NUMBER}"
+    }
+    else {
+        return "latest"
+    }
+}
+
+String readMajorMinorVersion() {
+    Properties versionProps = new Properties()
+
+    versionPropertiesFile().withInputStream { stream ->
+        versionProps.load(stream)
+    }
+
+    return "${versionProps.MAJOR}.${versionProps.MINOR}"
+}
+
+File versionPropertiesFile() {
+    def versionProperties = file("$rootProject.projectDir/version.properties")
+
+    if (! versionProperties.exists()){
+        throw new IllegalStateException("Can not find version.properties in project root directory. Directory is: " + versionProperties.getParent());
+    }
+
+    return versionProperties;
+}
