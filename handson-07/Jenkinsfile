@@ -1,16 +1,10 @@
 withEnv(["PIPE_FLOW_NUMBER=${currentBuild.number}"]) {
-  stage ("checkout, test, build and publish") {
-    node {
+  stage "checkout, test, build and publish"
+  node {
+    git poll: true, url: "http://git.nautsch.net/dev/cd-ws-address.git"
+    sh "./gradlew -b ./workspace/build.gradle clean pushImages --info"
 
-      git url: "http://git.nautsch.net/dev/cd-ws-address.git"
-      if (isUnix()) {
-        sh "./gradlew -b ./workspace/build.gradle clean pushImages --info"
-      } else {
-        // not tested
-        bat "gradlew.bat ./workspace/build.gradle pushImages --info"
-      }
-      step([$class: 'JUnitResultArchiver', testResults: '**/workspace/build/test-results/test/TEST-*.xml'])
-    }
+    step([$class: 'JUnitResultArchiver', testResults: '**/workspace/build/test-results/test/TEST-*.xml'])
   }
 
   stage ("AAT")
