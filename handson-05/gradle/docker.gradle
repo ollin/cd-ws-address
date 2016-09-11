@@ -12,7 +12,7 @@ task copyDockerfile(type: Copy, group: "docker") {
 }
 
 task copyJarForDocker(type: Copy, group: "docker") {
-    dependsOn bootRepackage
+    dependsOn build
 
     from jar
     into "build/docker"
