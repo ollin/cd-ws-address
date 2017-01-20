@@ -1,0 +1,56 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
+    }
+}
+
+ext.dockerDeployUri = "registry.nautsch.net"
+ext.dockerImageName = "$dockerDeployUri/${rootProject.name}"
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+apply from: project.file('gradle/git.gradle')
+apply from: project.file('gradle/version.gradle')
+apply from: project.file('gradle/docker.gradle')
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+group ="net.nautsch.address"
+
+
+
+jar {
+    manifest {
+        attributes( "Implementation-Title": baseName,
+                    "Implementation-Version": version,
+                    "Built-By": System.getProperty('user.name'),
+                    "Built-Date": new Date(),
+                    "Built-JDK": System.getProperty('java.version'),
+                    "Built-Gradle": gradle.gradleVersion,
+                    "GitCommitId": gitCommitId)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
+
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    testCompile("junit:junit")
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.0'
+}
+
+
+

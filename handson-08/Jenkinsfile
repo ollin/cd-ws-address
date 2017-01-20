@@ -1,0 +1,28 @@
+withEnv(["PIPE_FLOW_NUMBER=${currentBuild.number}"]) {
+  stage "checkout, test, build and publish"
+  node {
+    git poll: true, url: "http://git.nautsch.net/dev/cd-ws-address.git"
+    sh "./gradlew -b ./workspace/build.gradle clean pushImages --info"
+
+    step([$class: 'JUnitResultArchiver', testResults: '**/workspace/build/test-results/test/TEST-*.xml'])
+  }
+
+  stage ("AAT")
+  node {
+    def stage060aat = load("workspace/stage-060-aat.groovy")
+    stage060aat.execute()
+  }
+
+  stage ("deploy to ex test")
+  input 'Exploratives Testing?'
+  node {
+    sh "./gradlew -b ./workspace/build.gradle clean :stage-080-deploy-to-ex-test:deploy --info"
+  }
+
+
+  stage ("deploy to prod")
+  input 'Produktiv gehen?'
+  node {
+    sh "./gradlew -b ./workspace/build.gradle clean :stage-090-deploy-to-prod:deploy --info"
+  }
+}

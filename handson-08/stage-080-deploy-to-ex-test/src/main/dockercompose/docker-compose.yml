@@ -1,0 +1,17 @@
+version: '2'
+
+networks:
+  cdwsinfa_nautsch.net:
+    external: true
+
+services:
+  address:
+    image: @fqImageName@
+    ports:
+      - "7001:8888"
+    networks:
+      - cdwsinfa_nautsch.net
+      - default
+    environment:
+      - VIRTUAL_HOST=extest.address.nautsch.net
+      - VIRTUAL_PORT=7001

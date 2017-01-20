@@ -1,0 +1,6 @@
+rootProject.name="address"
+
+include("stage-060-aat")
+include("stage-080-deploy-to-ex-test")
+include("stage-090-deploy-to-prod")
+

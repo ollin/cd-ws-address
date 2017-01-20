@@ -1,0 +1,65 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+repositories {
+    mavenCentral()
+}
+
+
+apply plugin: "groovy"
+sourceCompatibility = 1.8
+
+def stageEnv = "aat"
+
+def stageEnvDir = "build/dockercompose/${stageEnv}"
+
+dependencies {
+    testCompile "org.codehaus.groovy:groovy-all:2.4.6"
+    testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
+    testCompile "org.codehaus.groovy.modules.http-builder:http-builder:0.7"
+}
+
+task copyDockerComposeFile(type: Copy) {
+    from "src/main/dockercompose"
+    into stageEnvDir
+
+    String fqImageName = "${rootProject.dockerImageName}:${rootProject.dockerImageVersion}"
+    filter(ReplaceTokens, tokens: [fqImageName: fqImageName])
+}
+
+task "deploy-${stageEnv}"(type: Exec, group: 'deploy') {
+    dependsOn 'copyDockerComposeFile'
+
+    workingDir stageEnvDir
+    commandLine 'docker-compose', 'up', '-d'
+}
+
+test.dependsOn "deploy-${stageEnv}"
+test.doFirst {
+    int maxSec = 60
+    println ("Wait for Service Started for ${maxSec} seconds.")
+    for(int i = 0; i < maxSec; i++) {
+        print ("Try after ${i} seconds. ")
+        try {
+            new URL("http://aat.address.nautsch.net/")
+                    .getText(connectTimeout: 5_000,
+                    readTimeout: 10_000,
+                    useCaches: false,
+                    allowUserInteraction: false,
+                    requestProperties: ['Connection': 'close'])
+            println ("Service available.")
+            return
+        } catch (e) {
+            println (e)
+            sleep(1000)
+        }
+    }
+    throw new org.gradle.api.GradleException("Giving up. Service for testing not available.")
+}
+test.finalizedBy "clean-${stageEnv}"
+
+task "clean-${stageEnv}"(type: Exec, group: 'build') {
+
+    workingDir stageEnvDir
+    commandLine 'docker-compose', 'down'
+}
+
