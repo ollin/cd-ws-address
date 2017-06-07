@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.3.RELEASE")
     }
 }
 
@@ -12,7 +12,7 @@ ext.dockerImageName = "$dockerDeployUri/${rootProject.name}"
 
 apply plugin: 'java'
 apply plugin: 'idea'
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 apply from: project.file('gradle/git.gradle')
 apply from: project.file('gradle/version.gradle')
 apply from: project.file('gradle/docker.gradle')
